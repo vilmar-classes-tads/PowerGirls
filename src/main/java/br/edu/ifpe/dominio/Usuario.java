@@ -1,34 +1,40 @@
 package br.edu.ifpe.dominio;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.EnumSet;
 import java.util.Set;
 
-public final class Usuario {
-    private final String nomeCompleto, cpf, emailInstitucional, senhaHash, campus, areaFormacao, titulacao;
-    private final String nomeSocial, linkLattes, telefone;
-    private final Sexo sexo;
+/** Entidade de domínio que representa um usuário cadastrado. */
+public class Usuario {
+    private final String nome;
+    private final String cpf;
+    private final String email;
+    private final String senhaHash;
     private final Set<Perfil> perfis;
 
-    public Usuario(String nomeCompleto, String cpf, String emailInstitucional, String senhaHash,
-                   String campus, String areaFormacao, String titulacao, String nomeSocial,
-                   Sexo sexo, String linkLattes, String telefone, Set<Perfil> perfis) {
-        this.nomeCompleto = nomeCompleto; this.cpf = cpf; this.emailInstitucional = emailInstitucional;
-        this.senhaHash = senhaHash; this.campus = campus; this.areaFormacao = areaFormacao;
-        this.titulacao = titulacao; this.nomeSocial = nomeSocial; this.sexo = sexo;
-        this.linkLattes = linkLattes; this.telefone = telefone;
-        this.perfis = Collections.unmodifiableSet(new LinkedHashSet<>(perfis));
+    public Usuario(String nome, String cpf, String email, String senhaHash) {
+        this(nome, cpf, email, senhaHash, EnumSet.of(Perfil.ROLE_COORDENADOR, Perfil.ROLE_AVALIADOR));
     }
-    public String getNomeCompleto() { return nomeCompleto; }
+
+    public Usuario(String nome, String cpf, String email, String senhaHash, Set<Perfil> perfis) {
+        this.nome = exigirTexto(nome, "Nome");
+        this.cpf = exigirTexto(cpf, "CPF");
+        this.email = exigirTexto(email, "E-mail").toLowerCase();
+        this.senhaHash = exigirTexto(senhaHash, "Hash da senha");
+        if (perfis == null || perfis.isEmpty()) {
+            throw new IllegalArgumentException("O usuário deve possuir ao menos um perfil.");
+        }
+        this.perfis = Collections.unmodifiableSet(EnumSet.copyOf(perfis));
+    }
+
+    private static String exigirTexto(String valor, String campo) {
+        if (valor == null || valor.isBlank()) throw new IllegalArgumentException(campo + " é obrigatório.");
+        return valor.trim();
+    }
+
+    public String getNome() { return nome; }
     public String getCpf() { return cpf; }
-    public String getEmailInstitucional() { return emailInstitucional; }
+    public String getEmail() { return email; }
     public String getSenhaHash() { return senhaHash; }
-    public String getCampus() { return campus; }
-    public String getAreaFormacao() { return areaFormacao; }
-    public String getTitulacao() { return titulacao; }
-    public String getNomeSocial() { return nomeSocial; }
-    public Sexo getSexo() { return sexo; }
-    public String getLinkLattes() { return linkLattes; }
-    public String getTelefone() { return telefone; }
     public Set<Perfil> getPerfis() { return perfis; }
 }

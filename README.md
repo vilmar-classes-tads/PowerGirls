@@ -1,48 +1,54 @@
 # Cadastro de Servidores — Issue 0
 
-Projeto acadêmico em Java 17 e Maven, sem interface gráfica e sem banco de dados. A persistência é simulada com mapas em memória; os registros são perdidos ao encerrar o programa.
+Projeto de referência para cadastro de servidores, com validações, hash de senha, perfis padrão, formulário web e testes automatizados.
+
+## Observação sobre as tecnologias
+A issue pede Python, mas também exige estrutura Java/Maven, JDK 17 e `maven.yml`. Para respeitar ambos, o ZIP contém a implementação funcional em Python + Flask, testes Python, o workflow Maven solicitado e um esqueleto Maven mínimo. O workflow `python.yml` executa os testes da implementação principal.
+
+A persistência é em memória (`dict`): os dados são perdidos ao reiniciar a aplicação. Não há banco de dados real.
 
 ## Requisitos
-- JDK 17
-- Maven 3.8 ou superior
+- Python 3.10 ou superior e pip
+- Java 17 e Maven são opcionais, apenas para o esqueleto Maven
 
-## Comandos
+## Executar a aplicação
+No terminal, dentro da pasta do projeto:
 ```bash
-mvn clean compile
+python -m venv .venv
+```
+Linux/macOS:
+```bash
+source .venv/bin/activate
+```
+Windows PowerShell:
+```powershell
+.venv\Scripts\Activate.ps1
+```
+Depois:
+```bash
+pip install -r requirements.txt
+python app.py
+```
+Abra http://127.0.0.1:5000.
+
+## Executar testes Python
+```bash
+pip install -r requirements.txt
+python -m unittest discover -s tests -v
+```
+Os testes cobrem cadastro válido, campos obrigatórios, CPF/e-mail duplicados, senha curta, hash, perfis e retorno de erro.
+
+## Testar o workflow Maven localmente (opcional)
+Com Java 17 e Maven:
+```bash
 mvn clean test
 ```
 
-## Branch da atividade
-Na raiz do repositório Git da equipe:
-```bash
-git switch -c feature/config-ci
-```
-Se a branch já existir: `git switch feature/config-ci`.
-
-## Enviar para o GitHub
-```bash
-git add .
-git commit -m "feat: implementa cadastro e configuracao de CI"
-git push -u origin feature/config-ci
-```
-
-O workflow `.github/workflows/maven.yml` executa `mvn clean test` em pushes para `main`, `develop` e `feature/**`, e em pull requests para `main` e `develop`.
-
 ## Regras implementadas
 - Campos obrigatórios: nome completo, CPF, e-mail institucional, senha, campus, área de formação e titulação.
-- Campos opcionais: nome social, sexo (inclui `OUTRO`), link Lattes e telefone.
-- Validação dos dígitos verificadores do CPF; normalização de CPF e e-mail.
-- CPF e e-mail únicos.
-- Senha com no mínimo 6 caracteres, armazenada com hash BCrypt.
+- Opcionais: nome social, sexo (inclui “Outro”), Lattes e telefone.
+- CPF validado e normalizado; e-mail validado e comparado sem diferenciar maiúsculas/minúsculas.
+- Senha mínima de 6 caracteres e armazenamento PBKDF2-HMAC-SHA256 com salt aleatório.
 - Perfis padrão `ROLE_COORDENADOR` e `ROLE_AVALIADOR`.
-- Testes automatizados com JUnit 5.
-
-## Estrutura
-```text
-.github/workflows/maven.yml
-pom.xml
-src/main/java/br/edu/ifpe/dominio/{CadastroUsuarioService,Perfil,Sexo,Usuario}.java
-src/test/java/br/edu/ifpe/dominio/CadastroUsuarioServiceTest.java
-```
-
-Observação: é uma implementação de domínio para a Issue 0, não uma aplicação web. O serviço pode ser integrado a uma interface/API em issues futuras.
+- Sucesso redireciona para `/login`; erros são claros e mantêm os campos, exceto a senha.
+- A tela de login é demonstrativa; autenticação completa e banco de dados não fazem parte desta versão.
