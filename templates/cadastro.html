@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Cadastro de servidor</title>
+        <style>
+            body{font-family:system-ui,sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;color:#202124}
+            form{display:grid;grid-template-columns:1fr 1fr;gap:1rem} label{display:grid;gap:.35rem}
+            input,select{padding:.65rem;border:1px solid #aaa;border-radius:5px;font:inherit}
+            .wide{grid-column:1/-1}button{padding:.8rem;border:0;border-radius:5px;background:#155eef;color:white;font:inherit;cursor:pointer}
+            .error{background:#fff0f0;border:1px solid #c33;padding:.8rem;margin-bottom:1rem}small{color:#555}
+            @media(max-width:600px){form{grid-template-columns:1fr}.wide{grid-column:auto}}
+        </style>
+    </head>
+    <body>
+        <h1>Cadastro de servidor</h1><p>Campos marcados com * são obrigatórios.</p>
+        {% if erro %}<div class="error" role="alert">{{ erro }}</div>{% endif %}
+
+        <form method="post" action="{{ url_for('cadastrar') }}">
+            <label class="wide">Nome completo *<input name="nome_completo" required value="{{ dados.get('nome_completo','') }}"></label>
+            
+            <label>CPF *<input name="cpf" required inputmode="numeric" placeholder="000.000.000-00" value="{{ dados.get('cpf','') }}"></label>
+            
+            <label>E-mail institucional *<input name="email" type="email" required value="{{ dados.get('email','') }}"></label>
+            
+            <label>Senha * <small>Mínimo de 6 caracteres</small><input name="senha" type="password" required minlength="6" autocomplete="new-password"></label>
+            
+            <label>Campus *<input name="campus" required value="{{ dados.get('campus','') }}"></label>
+            
+            <label>Área de formação *<input name="area_formacao" required value="{{ dados.get('area_formacao','') }}"></label>
+            
+            <label>Titulação *<select name="titulacao" required><option value="">Selecione...</option>
+            
+                {% for opcao in ['Graduação','Especialização','Mestrado','Doutorado','Pós-doutorado'] %}
+            
+                <option value="{{ opcao }}" {% if dados.get('titulacao') == opcao %}selected{% endif %}>{{ opcao }}</option>{% endfor %}</select>
+            </label>
+            
+            <label>Nome social<input name="nome_social" value="{{ dados.get('nome_social','') }}"></label>
+            
+            <label>Sexo<select name="sexo">{% for opcao in ['', 'Feminino', 'Masculino', 'Outro', 'Prefiro não informar'] %}
+            
+                <option value="{{ opcao }}" {% if dados.get('sexo','') == opcao %}selected{% endif %}>{{ opcao or 'Selecione...' }}</option>{% endfor %}</select>
+            
+            </label>
+            
+            <label>Link do Lattes<input name="lattes" type="url" placeholder="https://..." value="{{ dados.get('lattes','') }}"></label>
+            
+            <label>Telefone<input name="telefone" type="tel" value="{{ dados.get('telefone','') }}"></label>
+            
+            <button class="wide" type="submit">Criar cadastro</button>
+        </form>
+        <p><a href="{{ url_for('login') }}">Já possui cadastro? Ir para login</a></p>
+    </body>
+</html>
