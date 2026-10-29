@@ -1,4 +1,4 @@
-package br.edu.ifpe.
+package br.edu.ifpe.dominio;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
