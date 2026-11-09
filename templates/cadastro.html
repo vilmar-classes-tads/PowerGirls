@@ -28,6 +28,21 @@
             
             <label>Campus *<input name="campus" required value="{{ dados.get('campus','') }}"></label>
             
+            <label>Categoria do servidor *
+                <select name="categoria_servidor" id="categoria_servidor" required>
+                    <option value="">Selecione...</option>
+
+                    <option value="DOCENTE"
+                        {% if dados.get('categoria_servidor') == 'DOCENTE' %}selected{% endif %}>
+                        Docente
+                    </option>
+
+                    <option value="TECNICO_ADMINISTRATIVO"
+                        {% if dados.get('categoria_servidor') == 'TECNICO_ADMINISTRATIVO' %}selected{% endif %}>
+                        Técnico-Administrativo
+                    </option>
+                </select>
+            </label>
             <label>Área de formação *<input name="area_formacao" required value="{{ dados.get('area_formacao','') }}"></label>
             
             <label>Titulação *<select name="titulacao" required><option value="">Selecione...</option>
