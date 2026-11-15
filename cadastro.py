@@ -6,6 +6,9 @@ from dataclasses import dataclass, field
 
 PERFIS_PADRAO = {"ROLE_COORDENADOR", "ROLE_AVALIADOR"}
 
+
+ROLE_TECNICO_ADMINISTRATIVO = "ROLE_TECNICO_ADMINISTRATIVO"
+
 class ErroCadastro(ValueError):
     pass
 
@@ -43,6 +46,7 @@ class Usuario:
     campus: str
     area_formacao: str
     titulacao: str
+    categoria_servidor: str = ""
     nome_social: str = ""
     sexo: str = ""
     lattes: str = ""
@@ -66,6 +70,14 @@ class CadastroService:
             if not str(dados.get(campo, "")).strip():
                 raise ErroCadastro(f"O campo {rotulo} é obrigatório.")
 
+        categoria_servidor = dados.get("categoria_servidor", "").strip()
+
+        if categoria_servidor not in {
+            "DOCENTE",
+            "TECNICO_ADMINISTRATIVO"
+        }:
+            raise ErroCadastro("Selecione uma categoria de servidor válida.")
+
         cpf = normalizar_cpf(dados["cpf"])
         if not cpf_valido(cpf):
             raise ErroCadastro("Informe um CPF válido.")
@@ -86,12 +98,23 @@ class CadastroService:
         if sexo not in {"", "Feminino", "Masculino", "Outro", "Prefiro não informar"}:
             raise ErroCadastro("Selecione uma opção válida para Sexo.")
 
+        perfis = set(PERFIS_PADRAO)
+        if categoria_servidor == "TECNICO_ADMINISTRATIVO":
+            perfis.add(ROLE_TECNICO_ADMINISTRATIVO)
+
         usuario = Usuario(
-            nome_completo=dados["nome_completo"].strip(), cpf=cpf, email=email,
-            senha_hash=hash_senha(dados["senha"]), campus=dados["campus"].strip(),
-            area_formacao=dados["area_formacao"].strip(), titulacao=dados["titulacao"].strip(),
-            nome_social=dados.get("nome_social", "").strip(), sexo=sexo, lattes=lattes,
-            telefone=dados.get("telefone", "").strip(), perfis=set(PERFIS_PADRAO),
+            nome_completo=dados["nome_completo"].strip(), 
+            cpf=cpf, 
+            email=email,
+            senha_hash=hash_senha(dados["senha"]), 
+            campus=dados["campus"].strip(),
+            area_formacao=dados["area_formacao"].strip(), 
+            titulacao=dados["titulacao"].strip(),
+            nome_social=dados.get("nome_social", "").strip(), 
+            sexo=sexo, 
+            lattes=lattes,
+            telefone=dados.get("telefone", "").strip(), 
+            perfis=perfis,
         )
         self.usuarios_por_cpf[cpf] = usuario
         self.emails_cadastrados[email] = cpf

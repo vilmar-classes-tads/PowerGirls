@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ titulo_pagina }} - PowerGirls</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        form { display: grid; gap: 1rem; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        label { display: grid; gap: .35rem; }
+        input { padding: .7rem; border: 1px solid #bbb; border-radius: 6px; }
+        .erro { color: #a00; background: #fee; padding: .8rem; border-radius: 6px; }
+        .botoes { display: flex; gap: .6rem; }
+        button, a { padding: .7rem .9rem; border: 1px solid #aaa; border-radius: 6px; text-decoration: none; cursor: pointer; }
+        button { background: #222; color: white; }
+        @media (max-width: 650px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<h1>{{ titulo_pagina }}</h1>
+{% if erro %}<p class="erro" role="alert">{{ erro }}</p>{% endif %}
+
+<form method="post" id="edital-form">
+    <label>Título
+        <input type="text" name="titulo" value="{{ edital.titulo or '' }}" required maxlength="200">
+    </label>
+
+    <div class="grid">
+        <label>Número
+            <input type="number" name="numero" value="{{ edital.numero or '' }}" min="1" required>
+        </label>
+        <label>Ano
+            <input type="number" name="ano" value="{{ edital.ano or '' }}" min="1900" required>
+        </label>
+    </div>
+
+    <h2>Período de submissão</h2>
+    <div class="grid">
+        <label>Início da submissão
+            <input type="date" id="inicio_submissao" name="inicio_submissao" value="{{ edital.inicio_submissao.isoformat() if edital.inicio_submissao else '' }}" required>
+        </label>
+        <label>Fim da submissão
+            <input type="date" id="fim_submissao" name="fim_submissao" value="{{ edital.fim_submissao.isoformat() if edital.fim_submissao else '' }}" required>
+        </label>
+    </div>
+
+    <h2>Período de avaliação</h2>
+    <div class="grid">
+        <label>Início da avaliação
+            <input type="date" id="inicio_avaliacao" name="inicio_avaliacao" value="{{ edital.inicio_avaliacao.isoformat() if edital.inicio_avaliacao else '' }}" required>
+        </label>
+        <label>Fim da avaliação
+            <input type="date" id="fim_avaliacao" name="fim_avaliacao" value="{{ edital.fim_avaliacao.isoformat() if edital.fim_avaliacao else '' }}" required>
+        </label>
+    </div>
+
+    <div class="botoes">
+        <button type="submit">Salvar edital</button>
+        <a href="{{ url_for('admin_editais') }}">Cancelar</a>
+    </div>
+</form>
+
+<script>
+const inicioSub = document.getElementById('inicio_submissao');
+const fimSub = document.getElementById('fim_submissao');
+const inicioAval = document.getElementById('inicio_avaliacao');
+const fimAval = document.getElementById('fim_avaliacao');
+
+function atualizarMinimos() {
+    fimSub.min = inicioSub.value || '';
+    fimAval.min = inicioAval.value || '';
+}
+
+[inicioSub, fimSub, inicioAval, fimAval].forEach(campo => campo.addEventListener('change', atualizarMinimos));
+atualizarMinimos();
+
+document.getElementById('edital-form').addEventListener('submit', function(event) {
+    if (inicioSub.value > fimSub.value) {
+        event.preventDefault();
+        alert('O início da submissão não pode ser posterior ao fim.');
+        return;
+    }
+    if (inicioAval.value > fimAval.value) {
+        event.preventDefault();
+        alert('O início da avaliação não pode ser posterior ao fim.');
+    }
+});
+</script>
+</body>
+</html>
