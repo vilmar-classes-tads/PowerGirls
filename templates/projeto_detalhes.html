@@ -1,0 +1,138 @@
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalhes do projeto - PowerGirls</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #333;
+        }
+
+        .campo {
+            margin-bottom: 20px;
+        }
+
+        .campo strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .acoes {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        a, button {
+            padding: 10px 16px;
+            border: 0;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            background: #445AA3;
+            color: white;
+            font-size: 14px;
+        }
+
+        .erro {
+            background: #ffe1e1;
+            color: #9b2020;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Detalhes do projeto</h1>
+    <p>Coordenador: {{ usuario_nome }}</p>
+
+    {% if erro %}
+        <div class="erro">{{ erro }}</div>
+    {% endif %}
+
+    <div class="campo">
+        <strong>Título</strong>
+        {{ projeto.titulo }}
+    </div>
+
+    <div class="campo">
+        <strong>Resumo</strong>
+        {{ projeto.resumo }}
+    </div>
+
+    <div class="campo">
+        <strong>Palavras-chave</strong>
+        {{ projeto.palavras_chave | join(", ") }}
+    </div>
+
+    <div class="campo">
+        <strong>Público-alvo</strong>
+        {{ projeto.publico_alvo }}
+    </div>
+
+    <div class="campo">
+        <strong>Área temática</strong>
+        {{ projeto.area_tematica }}
+    </div>
+
+    <div class="campo">
+        <strong>Campus</strong>
+        {{ projeto.campus }}
+    </div>
+
+    <div class="campo">
+        <strong>ODS selecionados</strong>
+        {{ projeto.ods | join(", ") }}
+    </div>
+
+    <div class="campo">
+        <strong>Termo de Compromisso</strong>
+        {% if projeto.termo_compromisso_aceito %}
+            Aceito
+        {% else %}
+            Não aceito
+        {% endif %}
+    </div>
+
+    <div class="campo">
+        <strong>Status</strong>
+        <span class="status">{{ projeto.status.value }}</span>
+    </div>
+
+    <div class="acoes">
+        {% if eh_autor %}
+            <a href="{{ url_for('meus_projetos') }}">
+                Voltar aos meus projetos
+            </a>
+        {% else %}
+            <a href="{{ url_for('projetos_publicos') }}">
+                Voltar aos projetos submetidos
+            </a>
+        {% endif %}
+        {% if eh_autor and projeto.status.value in ["Rascunho", "Em Correção"] %}    
+            <a href="{{ url_for('editar_projeto', projeto_id=projeto_id) }}">
+                Editar projeto
+            </a>
+
+            <form method="post"
+                  action="{{ url_for('submeter_projeto', projeto_id=projeto_id) }}">
+                <button type="submit">Submeter projeto</button>
+            </form>
+        {% endif %}
+    </div>
+
+</body>
+</html>

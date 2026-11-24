@@ -1,0 +1,139 @@
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Meus projetos</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 2rem auto;
+            max-width: 1200px;
+            padding: 0 1rem;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .acoes {
+            display: flex;
+            gap: .6rem;
+            align-items: center;
+        }
+        a, button {
+            padding: .65rem .9rem;
+            border-radius: 6px;
+            border: 1px solid #aaa;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        a {
+            color: #445AA3;
+            text-decoration: none;
+        }
+        .principal {
+            background: #222;
+            color: white;
+            border-color: #222;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: .7rem;
+            text-align: left;
+            vertical-align: top;
+        }
+        th { background: #f3f3f3; }
+        .vazio {
+            padding: 2rem;
+            text-align: center;
+            border: 1px dashed #aaa;
+            margin-top: 1.5rem;
+        }
+        form { display: inline; }
+        .botao-visualizar {
+        display: inline-block;
+        padding: 8px 12px;
+        background: #445AA3;
+        color: white;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+        }
+        .botao-visualizar:hover {
+            background: #1D3279;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div>
+        <h1>Meus projetos</h1>
+        <p>Coordenador: {{ usuario_nome }}</p>
+    </div>
+
+    <div class="acoes">
+        <a class="principal" href="{{ url_for('novo_projeto') }}">
+            Cadastrar projeto
+        </a>
+
+        <a href="{{ url_for('projetos_publicos') }}">
+            Consultar projetos submetidos
+        </a>
+
+        <a href="{{ url_for('admin_editais') }}">
+            Consultar editais
+        </a>
+
+        <form method="post" action="{{ url_for('logout') }}">
+            <button type="submit">Sair</button>
+        </form>
+    </div>
+</header>
+
+{% if projetos %}
+<table>
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Área temática</th>
+            <th>Campus</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for projeto_id, projeto in projetos %}
+        <tr>
+            <td>{{ projeto.titulo }}</td>
+            <td>{{ projeto.area_tematica }}</td>
+            <td>{{ projeto.campus }}</td>
+            <td>{{ projeto.status.value }}</td>
+            <td>
+                <a
+                    href="{{ url_for('visualizar_projeto', projeto_id=projeto_id) }}"
+                    class="botao-visualizar"
+                >
+                    Visualizar
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="vazio">
+    Você ainda não possui projetos cadastrados.
+</div>
+{% endif %}
+
+</body>
+</html>

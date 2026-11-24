@@ -7,7 +7,7 @@ def dados_validos(**alteracoes):
         "email": "maria@instituto.edu.br", "senha": "senha123",
         "campus": "Campus Recife", "area_formacao": "Computação", "titulacao": "Mestrado",
         "nome_social": "", "sexo": "Outro", "lattes": "https://lattes.cnpq.br/exemplo",
-        "telefone": "(81) 99999-0000",
+        "telefone": "(81) 99999-0000", "categoria_servidor": "DOCENTE"
     }
     dados.update(alteracoes)
     return dados
@@ -16,26 +16,63 @@ class CadastroServiceTests(unittest.TestCase):
     def setUp(self):
         self.service = CadastroService()
 
-    def test_cadastro_valido_e_perfis_padrao(self):
+    def test_docente_recebe_perfil_coordenador(self):
         usuario = self.service.cadastrar(dados_validos())
+
         self.assertEqual(usuario.nome_completo, "Maria da Silva")
-        self.assertEqual(usuario.perfis, {"ROLE_COORDENADOR", "ROLE_AVALIADOR"})
+        self.assertEqual(usuario.categoria_servidor, "DOCENTE")
+        self.assertEqual(usuario.perfis, {"ROLE_COORDENADOR"})
+
+    def test_tecnico_administrativo_recebe_perfil_admin(self):
+        usuario = self.service.cadastrar(
+            dados_validos(
+                cpf="111.444.777-35",
+                email="tecnico@instituto.edu.br",
+                categoria_servidor="TECNICO_ADMINISTRATIVO"
+            )
+        )
+
+        self.assertEqual(
+            usuario.categoria_servidor,
+            "TECNICO_ADMINISTRATIVO"
+        )
+        self.assertEqual(
+            usuario.perfis,
+            {"ROLE_TECNICO_ADMINISTRATIVO"}
+        )
+
+    def test_perfil_avaliador_nao_e_atribuido_automaticamente(self):
+        usuario = self.service.cadastrar(dados_validos())
+
+        self.assertNotIn("ROLE_AVALIADOR", usuario.perfis)
 
     def test_campos_obrigatorios(self):
-        for campo in ("nome_completo", "cpf", "email", "senha", "campus", "area_formacao", "titulacao"):
-            with self.subTest(campo=campo):
-                with self.assertRaises(ErroCadastro):
-                    CadastroService().cadastrar(dados_validos(**{campo: ""}))
+        for campo in (
+            "nome_completo", "cpf", "email", "senha",
+            "campus", "area_formacao", "titulacao"
+            ):                
+                with self.subTest(campo=campo):
+                    with self.assertRaises(ErroCadastro):
+                        CadastroService().cadastrar(dados_validos(**{campo: ""}))
 
     def test_cpf_duplicado(self):
         self.service.cadastrar(dados_validos())
-        with self.assertRaisesRegex(ErroCadastro, "CPF já está cadastrado"):
-            self.service.cadastrar(dados_validos(email="outra@instituto.edu.br"))
+        with self.assertRaisesRegex(
+            ErroCadastro, "CPF já está cadastrado"
+            ):
+                self.service.cadastrar(dados_validos(email="outra@instituto.edu.br"))
 
     def test_email_duplicado_sem_diferenciar_maiusculas(self):
         self.service.cadastrar(dados_validos())
-        with self.assertRaisesRegex(ErroCadastro, "e-mail institucional já cadastrado"):
-            self.service.cadastrar(dados_validos(cpf="111.444.777-35", email="MARIA@INSTITUTO.EDU.BR"))
+        with self.assertRaisesRegex(
+            ErroCadastro, "e-mail institucional já cadastrado"
+            ):
+                self.service.cadastrar(
+                    dados_validos(
+                        cpf="111.444.777-35", 
+                        email="MARIA@INSTITUTO.EDU.BR"
+                        )
+                    )
 
     def test_senha_curta(self):
         with self.assertRaisesRegex(ErroCadastro, "pelo menos 6"):
@@ -51,6 +88,12 @@ class CadastroServiceTests(unittest.TestCase):
     def test_cpf_invalido(self):
         with self.assertRaisesRegex(ErroCadastro, "CPF válido"):
             self.service.cadastrar(dados_validos(cpf="123.456"))
+
+    def test_categoria_servidor_invalida(self):
+        with self.assertRaisesRegex(ErroCadastro, "categoria de servidor válida"):
+            self.service.cadastrar(
+                dados_validos(categoria_servidor="ESTUDANTE")
+            )
 
 class RotasTests(unittest.TestCase):
     def setUp(self):

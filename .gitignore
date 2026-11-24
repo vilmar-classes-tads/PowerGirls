@@ -25,3 +25,14 @@ replay_pid*
 
 # Maven build output
 target/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Ambiente virtual
+.venv/
+
+# Maven
+target/

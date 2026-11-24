@@ -1,0 +1,181 @@
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ titulo_pagina }} - PowerGirls</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        form { display: grid; gap: 1rem; }
+        label { display: grid; gap: .35rem; }
+        input, textarea, select {
+            padding: .7rem;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            font: inherit;
+        }
+        textarea { min-height: 100px; }
+        .erro {
+            color: #a00;
+            background: #fee;
+            padding: .8rem;
+            border-radius: 6px;
+        }
+        .ods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: .7rem;
+        }
+        .ods label, .termo {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .ods input, .termo input { width: auto; }
+        .botoes {
+            display: flex;
+            gap: .6rem;
+        }
+        button, a {
+            padding: .7rem .9rem;
+            border: 1px solid #aaa;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        button {
+            background: #222;
+            color: white;
+        }
+        @media (max-width: 650px) {
+            .ods { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>{{ titulo_pagina }}</h1>
+
+{% if erro %}
+<p class="erro" role="alert">{{ erro }}</p>
+{% endif %}
+
+<form method="post">
+
+    <label>Título
+        <input
+            type="text"
+            name="titulo"
+            value="{{ projeto.titulo or '' }}"
+            maxlength="200"
+            required
+        >
+    </label>
+
+    <label>Resumo
+        <textarea name="resumo" required>{{ projeto.resumo or '' }}</textarea>
+    </label>
+
+    <label>Palavras-chave
+        <input
+            type="text"
+            name="palavras_chave"
+            value="{{ projeto.palavras_chave | join(', ') if projeto.palavras_chave else '' }}"
+            placeholder="Ex.: educação, tecnologia, inclusão"
+            required
+        >
+    </label>
+
+    <label>Público-alvo
+        <input
+            type="text"
+            name="publico_alvo"
+            value="{{ projeto.publico_alvo or '' }}"
+            required
+        >
+    </label>
+
+    <label>Área temática
+        <input
+            type="text"
+            name="area_tematica"
+            value="{{ projeto.area_tematica or '' }}"
+            required
+        >
+    </label>
+
+    <label>Campus
+        <input
+            type="text"
+            name="campus"
+            value="{{ projeto.campus or '' }}"
+            required
+        >
+    </label>
+
+    <h2>Objetivos de Desenvolvimento Sustentável (ODS)</h2>
+    <p>Selecione pelo menos um objetivo relacionado ao projeto.</p>
+
+    {% set ods_selecionados = projeto.ods | default([], true) | map('string') | list %}
+
+    <div class="ods">
+        {% set objetivos = [
+            "Erradicação da pobreza",
+            "Fome zero e agricultura sustentável",
+            "Saúde e bem-estar",
+            "Educação de qualidade",
+            "Igualdade de gênero",
+            "Água potável e saneamento",
+            "Energia limpa e acessível",
+            "Trabalho decente e crescimento econômico",
+            "Indústria, inovação e infraestrutura",
+            "Redução das desigualdades",
+            "Cidades e comunidades sustentáveis",
+            "Consumo e produção responsáveis",
+            "Ação contra a mudança global do clima",
+            "Vida na água",
+            "Vida terrestre",
+            "Paz, justiça e instituições eficazes",
+            "Parcerias e meios de implementação"
+        ] %}
+
+        {% for objetivo in objetivos %}
+        <label>
+            <input
+                type="checkbox"
+                name="ods"
+                value="{{ loop.index }}"
+                {% if loop.index|string in ods_selecionados %}checked{% endif %}
+            >
+            ODS {{ loop.index }} - {{ objetivo }}
+        </label>
+        {% endfor %}
+    </div>
+
+    <h2>Termo de Compromisso</h2>
+
+    <label class="termo">
+        <input
+            type="checkbox"
+            name="termo_compromisso_aceito"
+            {% if projeto.termo_compromisso_aceito %}checked{% endif %}
+            required
+        >
+        Declaro que li e aceito o Termo de Compromisso.
+    </label>
+
+    <div class="botoes">
+        <button type="submit">Salvar projeto</button>
+        <a href="{{ url_cancelar }}">Cancelar</a>
+    </div>
+
+</form>
+
+</body>
+</html>

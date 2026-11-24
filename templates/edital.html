@@ -3,33 +3,91 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Área administrativa - Editais</title>
+    <title>Editais</title>
     <style>
-        body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 1200px; padding: 0 1rem; }
-        header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
-        .acoes { display: flex; gap: .6rem; align-items: center; }
-        a, button { padding: .65rem .9rem; border-radius: 6px; border: 1px solid #aaa; text-decoration: none; cursor: pointer; }
-        .principal { background: #222; color: white; border-color: #222; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
-        th, td { border: 1px solid #ddd; padding: .7rem; text-align: left; vertical-align: top; }
+        body { 
+            font-family: system-ui, sans-serif; 
+            margin: 2rem auto; 
+            max-width: 1200px; 
+            padding: 0 1rem; 
+        }
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            gap: 1rem; 
+            flex-wrap: wrap; 
+        }
+        .acoes { 
+            display: flex; 
+            gap: .6rem; 
+            align-items: center; 
+        }
+        a, button { 
+            padding: .65rem .9rem; 
+            border-radius: 6px; 
+            border: 1px solid #aaa; 
+            text-decoration: none; 
+            cursor: pointer; 
+        }
+        a {
+            color: #445AA3;
+            text-decoration: none;
+        }
+        .principal { 
+            background: #222; 
+            color: white; 
+            border-color: #222; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1.5rem; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: .7rem; 
+            text-align: left; 
+            vertical-align: top; 
+        }
         th { background: #f3f3f3; }
-        .vazio { padding: 2rem; text-align: center; border: 1px dashed #aaa; margin-top: 1.5rem; }
+        .vazio { 
+            padding: 2rem; 
+            text-align: center; 
+            border: 1px dashed #aaa; 
+            margin-top: 1.5rem; 
+        }
         form { display: inline; }
     </style>
 </head>
 <body>
 <header>
     <div>
-        <h1>Gerenciamento de Editais</h1>
-        <p>Usuário: {{ usuario_nome }}</p>
-    </div>
-    <div class="acoes">
-            {% if pode_editar %}
-        <a class="principal" href="{{ url_for('novo_edital') }}">
-            Cadastrar edital
+            <h1>Gerenciamento de Editais</h1>
+            <p>Usuário: {{ usuario_nome }}</p>
+        </div>
+        <div class="acoes">
+
+        {% if 'ROLE_COORDENADOR' in session.get('usuario_perfis', []) %}
+            <a href="{{ url_for('meus_projetos') }}">
+                Meus projetos
+            </a>
+        {% endif %}
+
+        <a href="{{ url_for('projetos_publicos') }}">
+            Projetos submetidos
         </a>
-            {% endif %}
-        <form method="post" action="{{ url_for('logout') }}"><button type="submit">Sair</button></form>
+
+        {% if pode_editar %}
+            <a class="principal" href="{{ url_for('novo_edital') }}">
+                Cadastrar edital
+            </a>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('logout') }}">
+            <button type="submit">Sair</button>
+        </form>
+
     </div>
 </header>
 
