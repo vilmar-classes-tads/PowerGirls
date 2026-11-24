@@ -4,9 +4,8 @@ import re
 import secrets
 from dataclasses import dataclass, field
 
-PERFIS_PADRAO = {"ROLE_COORDENADOR", "ROLE_AVALIADOR"}
-
-
+ROLE_COORDENADOR = "ROLE_COORDENADOR"
+ROLE_AVALIADOR = "ROLE_AVALIADOR"
 ROLE_TECNICO_ADMINISTRATIVO = "ROLE_TECNICO_ADMINISTRATIVO"
 
 class ErroCadastro(ValueError):
@@ -51,7 +50,7 @@ class Usuario:
     sexo: str = ""
     lattes: str = ""
     telefone: str = ""
-    perfis: set[str] = field(default_factory=lambda: set(PERFIS_PADRAO))
+    perfis: set[str] = field(default_factory=set)
 
 class CadastroService:
     """Serviço de cadastro com armazenamento em memória."""
@@ -98,9 +97,10 @@ class CadastroService:
         if sexo not in {"", "Feminino", "Masculino", "Outro", "Prefiro não informar"}:
             raise ErroCadastro("Selecione uma opção válida para Sexo.")
 
-        perfis = set(PERFIS_PADRAO)
-        if categoria_servidor == "TECNICO_ADMINISTRATIVO":
-            perfis.add(ROLE_TECNICO_ADMINISTRATIVO)
+        if categoria_servidor == "DOCENTE":
+            perfis = {ROLE_COORDENADOR}
+        else:
+            perfis = {ROLE_TECNICO_ADMINISTRATIVO}
 
         usuario = Usuario(
             nome_completo=dados["nome_completo"].strip(), 
@@ -110,6 +110,7 @@ class CadastroService:
             campus=dados["campus"].strip(),
             area_formacao=dados["area_formacao"].strip(), 
             titulacao=dados["titulacao"].strip(),
+            categoria_servidor=categoria_servidor,
             nome_social=dados.get("nome_social", "").strip(), 
             sexo=sexo, 
             lattes=lattes,
