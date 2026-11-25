@@ -27,5 +27,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Compilar e Executar Testes com o Maven
-        run: mvn clean test
+      - name: Compilar, executar testes e gerar JAR
+        run: mvn clean package
+
+      - name: Construir imagem Docker
+        run: docker build -t sistema-editais:latest .
+
+      - name: Executar container Docker
+        run: docker run --rm sistema-editais:latest
